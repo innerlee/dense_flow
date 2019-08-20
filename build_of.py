@@ -2,6 +2,7 @@ __author__ = 'yjxiong'
 
 import cv2
 import os
+import os.path as osp
 from multiprocessing import Pool, current_process
 
 import argparse
@@ -10,7 +11,7 @@ out_path = ''
 
 def dump_frames(vid_path):
     video = cv2.VideoCapture(vid_path)
-    vid_name = vid_path.split('/')[-1].split('.')[0]
+    vid_name = osp.splitext(osp.basename(vid_path))[0]
     out_full_path = os.path.join(out_path, vid_name)
 
     fcount = int(video.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT))
@@ -32,7 +33,7 @@ def dump_frames(vid_path):
 def run_optical_flow(vid_item, dev_id=0):
     vid_path = vid_item[0]
     vid_id = vid_item[1]
-    vid_name = vid_path.split('/')[-1].split('.')[0]
+    vid_name = osp.splitext(osp.basename(vid_path))[0]
     out_full_path = os.path.join(out_path, vid_name)
     try:
         os.mkdir(out_full_path)
@@ -54,7 +55,7 @@ def run_optical_flow(vid_item, dev_id=0):
 def run_warp_optical_flow(vid_item, dev_id=0):
     vid_path = vid_item[0]
     vid_id = vid_item[1]
-    vid_name = vid_path.split('/')[-1].split('.')[0]
+    vid_name = osp.splitext(osp.basename(vid_path))[0]
     out_full_path = os.path.join(out_path, vid_name)
     try:
         os.mkdir(out_full_path)
