@@ -19,7 +19,7 @@ void calcDenseNvFlowVideoGPU(path video_path, path output_dir, string algorithm,
         LOG(ERROR) << output_dir << " is not a valid dir!";
         return;
     }
-    if (algorithm != "nv" && algorithm != "tvl1" && algorithm != "farn" && algorithm != "brox") {
+    if (algorithm != "tvl1" && algorithm != "farn" && algorithm != "brox") {
         LOG(ERROR) << algorithm << " not supported!";
         return;
     }
@@ -138,9 +138,6 @@ void calcDenseNvFlowVideoGPU(path video_path, path output_dir, string algorithm,
     Ptr<cuda::FarnebackOpticalFlow> alg_farn = cuda::FarnebackOpticalFlow::create();
     Ptr<cuda::OpticalFlowDual_TVL1> alg_tvl1 = cuda::OpticalFlowDual_TVL1::create();
     Ptr<cuda::BroxOpticalFlow> alg_brox = cuda::BroxOpticalFlow::create(0.197f, 50.0f, 0.8f, 10, 77, 10);
-    Ptr<NvidiaOpticalFlow_1_0> alg_nv = NvidiaOpticalFlow_1_0::create(
-        size.width, size.height, NvidiaOpticalFlow_1_0::NVIDIA_OF_PERF_LEVEL::NV_OF_PERF_LEVEL_SLOW, false, false,
-        false, dev_id);
     int M = N - abs(step);
     if (M <= 0)
         return;
@@ -151,25 +148,20 @@ void calcDenseNvFlowVideoGPU(path video_path, path output_dir, string algorithm,
         int a = step > 0 ? i : i - step;
         int b = step > 0 ? i + step : i;
 
-        if (algorithm == "nv") {
-            alg_nv->calc(frames_gray[a], frames_gray[b], flow, stream);
-            alg_nv->upSampler(flow, size.width, size.height, alg_nv->getGridSize(), flows[i]);
+        if (algorithm == "tvl1") {
+            alg_tvl1->calc(frames_gray[a], frames_gray[b], flow_gpu, stream);
+        } else if (algorithm == "farn") {
+            alg_farn->calc(frames_gray[a], frames_gray[b], flow_gpu, stream);
+        } else if (algorithm == "brox") {
+            GpuMat d_buf_0, d_buf_1;
+            frames_gray[a].convertTo(d_buf_0, CV_32F, 1.0 / 255.0, stream);
+            frames_gray[b].convertTo(d_buf_1, CV_32F, 1.0 / 255.0, stream);
+            alg_brox->calc(d_buf_0, d_buf_1, flow_gpu, stream);
         } else {
-            if (algorithm == "tvl1") {
-                alg_tvl1->calc(frames_gray[a], frames_gray[b], flow_gpu, stream);
-            } else if (algorithm == "farn") {
-                alg_farn->calc(frames_gray[a], frames_gray[b], flow_gpu, stream);
-            } else if (algorithm == "brox") {
-                GpuMat d_buf_0, d_buf_1;
-                frames_gray[a].convertTo(d_buf_0, CV_32F, 1.0 / 255.0, stream);
-                frames_gray[b].convertTo(d_buf_1, CV_32F, 1.0 / 255.0, stream);
-                alg_brox->calc(d_buf_0, d_buf_1, flow_gpu, stream);
-            } else {
-                LOG(ERROR) << "Unknown optical algorithm " << algorithm;
-                return;
-            }
-            flow_gpu.download(flows[i], stream);
+            LOG(ERROR) << "Unknown optical algorithm " << algorithm;
+            return;
         }
+        flow_gpu.download(flows[i], stream);
     }
     double end_flow = CurrentSeconds();
     if (verbose)
