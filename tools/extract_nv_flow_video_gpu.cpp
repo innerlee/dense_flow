@@ -15,17 +15,18 @@ using clue::trim;
 
 int main(int argc, char **argv) {
     try {
-        const char *keys = {"{ v video     | video.mp4        | filename of video or a list.txt of videos }"
-                            "{ o outputDir | /path/to/outputs | root dir of output }"
-                            "{ a algorithm | nv               | optical flow algorithm (nv/tvl1/farn/brox) }"
-                            "{ s step      | 1                | right - left (0 for img, non-0 for flow) }"
-                            "{ b bound     | 32               | maximum of optical flow }"
-                            "{ w newWidth  | 0                | new width }"
-                            "{ h newHeight | 0                | new height }"
-                            "{ sh short    | 0                | short side length }"
-                            "{ d deviceId  | 0                | set gpu id }"
-                            "{ vv verbose  |                  | verbose }"
-                            "{ help        |                  | print help message }"};
+        const char *keys = {"{ v video        | video.mp4        | filename of video or a list.txt of videos }"
+                            "{ o outputDir    | /path/to/outputs | root dir of output }"
+                            "{ a algorithm    | nv               | optical flow algorithm (nv/tvl1/farn/brox) }"
+                            "{ s step         | 1                | right - left (0 for img, non-0 for flow) }"
+                            "{ b bound        | 32               | maximum of optical flow }"
+                            "{ w newWidth     | 0                | new width }"
+                            "{ h newHeight    | 0                | new height }"
+                            "{ sh short       | 0                | short side length }"
+                            "{ d deviceId     | 0                | set gpu id }"
+                            "{ cf classFolder |                  | outputDir/class/video/flow.jpg }"
+                            "{ vv verbose     |                  | verbose }"
+                            "{ help           |                  | print help message }"};
 
         CommandLineParser cmd(argc, argv, keys);
         path video_path(cmd.get<string>("video"));
@@ -37,6 +38,7 @@ int main(int argc, char **argv) {
         int new_height = cmd.get<int>("newHeight");
         int new_short = cmd.get<int>("short");
         int device_id = cmd.get<int>("deviceId");
+        bool has_class = cmd.has("classFolder");
         bool verbose = cmd.has("verbose");
 
         cmd.about("GPU optical flow extraction.");
@@ -55,12 +57,22 @@ int main(int argc, char **argv) {
             for (string_view line : lstr) {
                 try {
                     path vidfile(trim(line).to_string());
-                    path outdir = output_dir / vidfile.stem();
+                    path outdir;
+                    if (has_class) {
+                        outdir = output_dir / vidfile.parent_path().filename() / vidfile.stem();
+                    } else {
+                        outdir = output_dir / vidfile.stem();
+                    }
                     create_directories(outdir);
                     calcDenseNvFlowVideoGPU(vidfile, outdir, algorithm, step, bound, new_width, new_height, new_short,
                                             device_id, verbose, stream);
                     // mark done
-                    path donedir = output_dir / ".done";
+                    path donedir;
+                    if (has_class) {
+                        donedir = output_dir / ".done" / vidfile.parent_path().filename();
+                    } else {
+                        donedir = output_dir / ".done";
+                    }
                     path donefile = donedir / vidfile.stem();
                     create_directories(donedir);
                     createFile(donefile);
