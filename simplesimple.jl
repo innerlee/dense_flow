@@ -11,11 +11,11 @@ s = ArgParseSettings()
     "--sourcedir", "-s"
         help = "source dir"
         arg_type = String
-        default = "/home/lizz/data/hmdb51"
+        default = "/mnt/lustre/lizz/data/Kinetics-400_FAIR/val_256"
     "--targetdir", "-t"
         help = "target dir"
         arg_type = String
-        default = "/dev/shm/hmdb51"
+        default = "/dev/shm/kinetics-val"
     "--step"
         help = "optical flow step"
         arg_type = Int

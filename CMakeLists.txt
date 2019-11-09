@@ -24,7 +24,6 @@ message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 
 find_package(Boost REQUIRED COMPONENTS date_time filesystem iostreams)
 message(STATUS "Boost library status:")
-message(STATUS "    config: ${BOOST_ROOT}")
 message(STATUS "    version: ${Boost_VERSION}")
 message(STATUS "    libraries: ${Boost_LIBRARIES}")
 message(STATUS "    include path: ${Boost_INCLUDE_DIRS}")
