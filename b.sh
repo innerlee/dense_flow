@@ -1,3 +1,3 @@
-cmake \
-    -DOpenCV_DIR=/home/lizz/app \
-    ..
+export CC=/mnt/lustre/lizz/app/bin/gcc
+export CXX=/mnt/lustre/lizz/app/bin/g++
+cmake ..

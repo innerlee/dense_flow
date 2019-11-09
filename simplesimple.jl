@@ -69,7 +69,7 @@ for i in 1:n
     writedlm(TMPFILE, ITEMS[(i-1) * BATCH + 1 : min(i * BATCH, end)])
     println("$i/$n, ", TMPFILE)
     Shell.run("""
-cd /home/lizz/dev/dense_flow
+cd /mnt/lustre/lizz/dev/dense_flow
 ./extract_nvflow -v="$(TMPFILE)" -o="$(TARGETDIR)" -a=$(ALGORITHM) -s=$(STEP) -b=$(BOUND) -cf
     """)
     rm(TMPFILE, force=true)
