@@ -1,6 +1,9 @@
 #!/usr/bin/env julia
 using ArgParse
 using Random
+using Dates
+
+t(x) = Dates.format(Dates.epochms2datetime(round(Int, x)), "HH:MM:SS")
 
 s = ArgParseSettings()
 @add_arg_table s begin
