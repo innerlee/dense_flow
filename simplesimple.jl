@@ -68,9 +68,13 @@ for i in 1:n
     TMPFILE = tempname() * ".txt"
     writedlm(TMPFILE, ITEMS[(i-1) * BATCH + 1 : min(i * BATCH, end)])
     println("$i/$n, ", TMPFILE)
+    try
     Shell.run("""
 cd /mnt/lustre/lizz/dev/dense_flow
 ./extract_nvflow -v="$(TMPFILE)" -o="$(TARGETDIR)" -a=$(ALGORITHM) -s=$(STEP) -b=$(BOUND) -cf
     """)
+    catch ex
+        println(ex)
+    end
     rm(TMPFILE, force=true)
 end
