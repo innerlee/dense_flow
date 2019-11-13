@@ -205,12 +205,21 @@ void calcDenseFlowFramesGPU(path video_path, path output_dir, string algorithm, 
 
     // optflow
     double before_flow = CurrentSeconds();
-    Ptr<cuda::FarnebackOpticalFlow> alg_farn = cuda::FarnebackOpticalFlow::create();
-    Ptr<cuda::OpticalFlowDual_TVL1> alg_tvl1 = cuda::OpticalFlowDual_TVL1::create();
-    Ptr<cuda::BroxOpticalFlow> alg_brox = cuda::BroxOpticalFlow::create(0.197f, 50.0f, 0.8f, 10, 77, 10);
-    Ptr<NvidiaOpticalFlow_1_0> alg_nv = NvidiaOpticalFlow_1_0::create(
-        size.width, size.height, NvidiaOpticalFlow_1_0::NVIDIA_OF_PERF_LEVEL::NV_OF_PERF_LEVEL_SLOW, false, false,
-        false, dev_id);
+    Ptr<cuda::FarnebackOpticalFlow> alg_farn;
+    Ptr<cuda::OpticalFlowDual_TVL1> alg_tvl1;
+    Ptr<cuda::BroxOpticalFlow> alg_brox;
+    Ptr<NvidiaOpticalFlow_1_0> alg_nv;
+    if (algorithm == "nv") {
+        alg_nv = NvidiaOpticalFlow_1_0::create(size.width, size.height,
+                                               NvidiaOpticalFlow_1_0::NVIDIA_OF_PERF_LEVEL::NV_OF_PERF_LEVEL_SLOW,
+                                               false, false, false, dev_id);
+    } else if (algorithm == "tvl1") {
+        alg_tvl1 = cuda::OpticalFlowDual_TVL1::create();
+    } else if (algorithm == "brox") {
+        alg_brox = cuda::BroxOpticalFlow::create(0.197f, 50.0f, 0.8f, 10, 77, 10);
+    } else if (algorithm == "farn") {
+        alg_farn = cuda::FarnebackOpticalFlow::create();
+    }
     int M = N - abs(step);
     if (M <= 0)
         return;
@@ -269,6 +278,6 @@ void calcDenseFlowFramesGPU(path video_path, path output_dir, string algorithm, 
     if (verbose)
         std::cout << M << " flows written to disk, using " << (end_write - before_write) << "s" << std::endl;
 
-    std::cout << video_path.remove_trailing_separator().filename().string() << " has " << M << " flows finished in " << (end_write - before_read) << "s, "
-              << M / (end_write - before_read) << "fps" << std::endl;
+    std::cout << video_path.remove_trailing_separator().filename().string() << " has " << M << " flows finished in "
+              << (end_write - before_read) << "s, " << M / (end_write - before_read) << "fps" << std::endl;
 }
