@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
                             "{ h newHeight    | 0                | new height }"
                             "{ sh short       | 0                | short side length }"
                             "{ d deviceId     | 0                | set gpu id }"
+                            "{ if inputFrames |                  | inputs are frames }"
                             "{ cf classFolder |                  | outputDir/class/video/flow.jpg }"
                             "{ vv verbose     |                  | verbose }"
                             "{ help           |                  | print help message }"};
@@ -39,6 +40,7 @@ int main(int argc, char **argv) {
         int new_short = cmd.get<int>("short");
         int device_id = cmd.get<int>("deviceId");
         bool has_class = cmd.has("classFolder");
+        bool input_frames = cmd.has("inputFrames");
         bool verbose = cmd.has("verbose");
 
         cmd.about("GPU optical flow extraction.");
@@ -64,8 +66,8 @@ int main(int argc, char **argv) {
                         outdir = output_dir / vidfile.stem();
                     }
                     create_directories(outdir);
-                    calcDenseNvFlowVideoGPU(vidfile, outdir, algorithm, step, bound, new_width, new_height, new_short,
-                                            device_id, verbose, stream);
+                    calcDenseFlowFramesGPU(vidfile, outdir, algorithm, step, bound, new_width, new_height, new_short,
+                                            device_id, input_frames, verbose, stream);
                     // mark done
                     path donedir;
                     if (has_class) {
@@ -81,8 +83,8 @@ int main(int argc, char **argv) {
                 }
             }
         } else {
-            calcDenseNvFlowVideoGPU(video_path, output_dir, algorithm, step, bound, new_width, new_height, new_short,
-                                    device_id, verbose, stream);
+            calcDenseFlowFramesGPU(video_path, output_dir, algorithm, step, bound, new_width, new_height, new_short,
+                                    device_id, input_frames, verbose, stream);
         }
 
     } catch (const std::exception &ex) {

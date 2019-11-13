@@ -10,6 +10,7 @@
 #include "opencv2/video/tracking.hpp"
 
 #include <boost/filesystem.hpp>
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <iostream>

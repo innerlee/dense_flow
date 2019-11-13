@@ -31,8 +31,8 @@ message(STATUS "    include path: ${Boost_INCLUDE_DIRS}")
 include_directories( ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} include/ include/easylogging++/src include/CLUE/include)
 link_directories(${OpenCV_LIB_DIRS} ${Boost_LIBRARIES} )
 
-add_library(denseflow src/common.cpp src/utils.cpp src/dense_nv_flow_video_gpu.cpp )
-target_link_libraries( denseflow ${OpenCV_LIBS} Boost::filesystem ${Boost_LIBRARIES} )
+add_library( libdenseflow src/common.cpp src/utils.cpp src/dense_flow_gpu.cpp )
+target_link_libraries( libdenseflow ${OpenCV_LIBS} Boost::filesystem ${Boost_LIBRARIES} )
 
-add_executable( extract_nvflow tools/extract_nv_flow_video_gpu.cpp)
-target_link_libraries( extract_nvflow ${OpenCV_LIBS} Boost::filesystem ${Boost_LIBRARIES} denseflow)
+add_executable( denseflow tools/denseflow.cpp)
+target_link_libraries( denseflow ${OpenCV_LIBS} Boost::filesystem ${Boost_LIBRARIES} libdenseflow)
