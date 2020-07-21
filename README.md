@@ -1,3 +1,5 @@
+> This repo is deprecated, please consider using https://github.com/open-mmlab/denseflow
+
 Extracting dense flow field given a video.
 
 #### Dependencies:
